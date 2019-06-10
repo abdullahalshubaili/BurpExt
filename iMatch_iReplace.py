@@ -1,4 +1,5 @@
-# The goal of this burp extension is to encode b64 the value of the parameter 'fw' which sqlmap will be injecting (param 'fw' is json so that why we are looking for work-around)
+# script 0.2v 
+#The goal of this burp extension is to encode b64 the value of the parameter 'fw' which sqlmap will be injecting (param 'fw' is json so that why we are looking for work-around)
 
 #so far all i can do is printing the value of 'fw'
 from burp import IBurpExtender
@@ -55,6 +56,8 @@ class BurpExtender(IBurpExtender, IHttpListener, IProxyListener):
                 #newParam.append(newParam)
                 print "after append ",newParam
                 
+                newRequest = self._helpers.buildParameter(parameter.getName(),"a",parameter.getType())
+                print newRequest
                 
                # for p in self._helpers.analyzeRequest(currentRequest.getRequest()).getParameters():
                #     newRequest = []
@@ -82,19 +85,36 @@ class BurpExtender(IBurpExtender, IHttpListener, IProxyListener):
         if messageIsRequest:
             messageInfo = message.getMessageInfo()
             headers =  self._helpers.analyzeRequest(messageInfo.getRequest()).getHeaders()
-            
-            
+            print "\n\nheaders\n\n",headers
             #HERE extract the value of 'fw' param then b64encode it then pass it to self._helpert.buildHttpMessage 
             
-            head = headers.get
+            #head = headers.get
             print "headers",headers
-#            for header in  headers:
-#                #ip = map(str, (random.randint(0, 255)  for n in range(4))))
-#		ip = '10.10.10.10'
-#                xforward = "asdasd"
-#
-#                #globalv = self._helpers.buildHttp
-#
-#		headers.add(xforward)
-#		newRequest = self._helpers.buildHttpMessage(headers ,None) 
-#		messageInfo.setRequest(newRequest)
+
+            print "\n\n\n\nNOTICE ME \n\n\n\n"
+            print list(headers)
+
+            for header in  headers:
+                #ip = map(str, (random.randint(0, 255)  for n in range(4))))
+		#ip = '10.10.10.10'
+                xforward = "x-forward"
+                
+                print xforward
+                #globalv = self._helpers.buildHttp
+                
+                ################################################
+                ####MUST: search for method to extract fw parameter value as list string
+
+                ###here use burp api encoder b64 to store the result in a variable
+
+                ################################################
+                #### MUST: search for method to append (list string in front of headers)
+                ################################################
+
+
+                headers.add(xforward)
+                #headers.replace('name','pla')
+
+		newRequest = self._helpers.buildHttpMessage(headers ,None) 
+		messageInfo.setRequest(newRequest)
+
