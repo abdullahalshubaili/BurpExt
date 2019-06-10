@@ -24,6 +24,7 @@ class BurpExtender(IBurpExtender, IHttpListener, IProxyListener):
    
     def processHttpMessage(self, toolFlag, messageIsRequest, currentRequest):
         global newParam    
+        global Mparam
         if messageIsRequest:
 
             requestInfo = self._helpers.analyzeRequest(currentRequest)
@@ -47,9 +48,11 @@ class BurpExtender(IBurpExtender, IHttpListener, IProxyListener):
                 json = parameter.getValue()
                 encodejson = self._helpers.base64Encode(json)
                 print "encode json ",encodejson
-                newParam2 =  "fw="+encodejson
-                newParam = [newParam2]
-                print newParam
+                newParam =  "fw="+encodejson
+                
+                if 'fw' in tocompare:
+                    Mparam = "fw="+encodejson
+                    print "M M M M M MM M ", Mparam
             
             if 'fw' in tocompare:
                 print "hhhh"
@@ -77,7 +80,7 @@ class BurpExtender(IBurpExtender, IHttpListener, IProxyListener):
     print "hmmmm "
     
     def processProxyMessage(self, messageIsRequest, message):
-        print "time for changing", newParam
+        print "time for changing", Mparam
         
         #n = message.getParameter()
         #print "plapalpalpalpalpalpalpalpal",n
@@ -85,14 +88,13 @@ class BurpExtender(IBurpExtender, IHttpListener, IProxyListener):
         if messageIsRequest:
             messageInfo = message.getMessageInfo()
             headers =  self._helpers.analyzeRequest(messageInfo.getRequest()).getHeaders()
-            print "\n\nheaders\n\n",headers
             #HERE extract the value of 'fw' param then b64encode it then pass it to self._helpert.buildHttpMessage 
             
             #head = headers.get
             print "headers",headers
 
             print "\n\n\n\nNOTICE ME \n\n\n\n"
-            print list(headers)
+            print headers 
 
             for header in  headers:
                 #ip = map(str, (random.randint(0, 255)  for n in range(4))))
@@ -112,9 +114,10 @@ class BurpExtender(IBurpExtender, IHttpListener, IProxyListener):
                 ################################################
 
 
-                headers.add(xforward)
-                #headers.replace('name','pla')
+                #headers.add(xforward)
+                headers[0] = "GET /domain-name?"+Mparam+ " HTTP/1.1"
+                print "\n header for May\n",headers
 
-		newRequest = self._helpers.buildHttpMessage(headers ,None) 
+		newRequest = self._helpers.buildHttpMessage(headers,None) 
 		messageInfo.setRequest(newRequest)
 
